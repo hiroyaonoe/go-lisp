@@ -1,12 +1,17 @@
 package node
 
-type tokenType int
+type nodeType int
 
 const (
-	NodeInt = iota + 1
+	NodeInt nodeType = iota + 1
+	NodeCons
+	NodeNil
+	NodeT
 )
+
+// NodeConsならValueはnil, それ以外ならCar, Cdrはnil
 type Node struct {
-	Type tokenType
+	Type nodeType
 	Value any
 	Car *Node
 	Cdr *Node
