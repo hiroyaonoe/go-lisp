@@ -2,8 +2,8 @@ package eval
 
 import "github.com/hiroyaonoe/go-lisp/node"
 
-type hash struct{
-	id string
+type hash struct {
+	id    string
 	value any
 }
 

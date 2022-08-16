@@ -11,8 +11,8 @@ const (
 
 // NodeConsならValueはnil, それ以外ならCar, Cdrはnil
 type Node struct {
-	Type nodeType
+	Type  nodeType
 	Value any
-	Car *Node
-	Cdr *Node
+	Car   *Node
+	Cdr   *Node
 }

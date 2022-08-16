@@ -3,8 +3,8 @@ package parser
 import (
 	"errors"
 
-	"github.com/hiroyaonoe/go-lisp/token"
 	"github.com/hiroyaonoe/go-lisp/node"
+	"github.com/hiroyaonoe/go-lisp/token"
 )
 
 var (
@@ -13,13 +13,13 @@ var (
 
 type parser struct {
 	tokens []token.Token
-	pos int
+	pos    int
 }
 
 func NewParser() *parser {
 	return &parser{
 		tokens: []token.Token{},
-		pos: 0, 
+		pos:    0,
 	}
 }
 

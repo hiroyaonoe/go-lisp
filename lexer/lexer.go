@@ -7,13 +7,13 @@ import (
 )
 
 type lexer struct {
-	s []rune
+	s   []rune
 	pos int
 }
 
 func NewLexer() *lexer {
 	return &lexer{
-		s: []rune{},
+		s:   []rune{},
 		pos: 0,
 	}
 }

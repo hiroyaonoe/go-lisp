@@ -10,33 +10,33 @@ const (
 )
 
 type Token struct {
-	Type tokenType
+	Type  tokenType
 	Value string
 }
 
 func Int(s string) Token {
 	return Token{
-		Type: TokenInt,
+		Type:  TokenInt,
 		Value: s,
 	}
 }
 
 func LParen() Token {
 	return Token{
-		Type: TokenLParen,
+		Type:  TokenLParen,
 		Value: "(",
 	}
 }
 func RParen() Token {
 	return Token{
-		Type: TokenRParen,
+		Type:  TokenRParen,
 		Value: ")",
 	}
 }
 
 func Plus() Token {
 	return Token{
-		Type: TokenRParen,
+		Type:  TokenRParen,
 		Value: "+",
 	}
 }
