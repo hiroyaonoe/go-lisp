@@ -31,25 +31,25 @@ func TestEnv_Eval(t *testing.T) {
 		{
 			name: "引数0個のPlus",
 			env:  NewEnv(nil),
-			node: node.Cons(node.Symbol("+"), node.Nil()),
+			node: node.List(node.Symbol("+")),
 			want: node.Int(0),
 		},
 		{
 			name: "引数1個のPlus",
 			env:  NewEnv(nil),
-			node: node.Cons(node.Symbol("+"), node.Cons(node.Int(1), node.Nil())),
+			node: node.List(node.Symbol("+"), node.Int(1)),
 			want: node.Int(1),
 		},
 		{
 			name: "引数2個のPlus",
 			env:  NewEnv(nil),
-			node: node.Cons(node.Symbol("+"), node.Cons(node.Int(1), node.Cons(node.Int(2), node.Nil()))),
+			node: node.List(node.Symbol("+"), node.Int(1), node.Int(2)),
 			want: node.Int(3),
 		},
 		{
 			name: "引数3個のPlus",
 			env:  NewEnv(nil),
-			node: node.Cons(node.Symbol("+"), node.Cons(node.Int(1), node.Cons(node.Int(2), node.Cons(node.Int(3), node.Nil())))),
+			node: node.List(node.Symbol("+"), node.Int(1), node.Int(2), node.Int(3)),
 			want: node.Int(6),
 		},
 		{
@@ -103,13 +103,13 @@ func TestEnv_Eval(t *testing.T) {
 		{
 			name:    "invalid arguments for +",
 			env:     NewEnv(nil),
-			node:    node.Cons(node.Symbol("+"), node.Cons(node.Nil(), node.Nil())),
+			node:    node.List(node.Symbol("+"), node.Nil()),
 			wantErr: errors.New("invalid arguments for +"),
 		},
 		{
 			name:    "illegal function call",
 			env:     NewEnv(nil),
-			node:    node.Cons(node.Int(1), node.Cons(node.Int(2), node.Nil())),
+			node:    node.List(node.Int(1), node.Int(2)),
 			wantErr: errors.New("illegal function call"),
 		},
 	}
