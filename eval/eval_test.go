@@ -26,7 +26,7 @@ func TestEnv_Eval(t *testing.T) {
 			name:    "not binded symbol",
 			env:     NewEnv(nil),
 			node:    node.Symbol("a"),
-			wantErr: errors.New("not binded symbol: a"),
+			wantErr: errors.New("not variable-binded symbol: a"),
 		},
 		{
 			name: "引数0個のPlus",

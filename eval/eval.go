@@ -53,7 +53,8 @@ func (e *Env) eval(n *node.Node) (*node.Node, error) {
 			if ok {
 				return fn(e, cdr)
 			}
-			return nil, errors.New("not implemented")
+			// TODO: lambda関数
+			return nil, fmt.Errorf("not function-binded symbol: %s", name)
 		default:
 			return nil, errors.New("illegal function call")
 		}
@@ -63,7 +64,7 @@ func (e *Env) eval(n *node.Node) (*node.Node, error) {
 		if ok {
 			return v, nil
 		}
-		return nil, fmt.Errorf("not binded symbol: %s", name)
+		return nil, fmt.Errorf("not variable-binded symbol: %s", name)
 	default:
 		return n, nil
 	}
