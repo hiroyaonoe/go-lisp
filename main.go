@@ -14,7 +14,7 @@ func readEvalPrint() error {
 	s := bufio.NewScanner(os.Stdin)
 	l := lexer.NewLexer()
 	p := parser.NewParser()
-	e := eval.NewEnv()
+	e := eval.NewEnv(nil)
 	for {
 		fmt.Print("> ")
 		if !s.Scan() {
@@ -32,11 +32,12 @@ func readEvalPrint() error {
 			continue
 		}
 		for _, node := range ast {
-			value, err := e.Eval(node)
+			ret, err := e.Eval(node)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				continue
 			}
-			fmt.Println(value)
+			fmt.Println(ret)
 		}
 	}
 	return nil
