@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"fmt"
-
 	"github.com/hiroyaonoe/go-lisp/token"
 )
 
@@ -27,7 +25,6 @@ func (l *lexer) parseTokens() []token.Token {
 	tokens := make([]token.Token, 0, len(l.s))
 	for {
 		r, ok := l.Next()
-		fmt.Println(string(r), ok, tokens)
 		if !ok {
 			return tokens
 		}
