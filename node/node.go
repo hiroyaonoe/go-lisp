@@ -63,6 +63,10 @@ func Nil() *Node {
 	return &Node{Type: NodeNil}
 }
 
+func T() *Node {
+	return &Node{Type: NodeT}
+}
+
 func Symbol(v string) *Node {
 	return &Node{
 		Type:  NodeSymbol,

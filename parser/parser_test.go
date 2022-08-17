@@ -26,6 +26,16 @@ func Test_parser_Parse(t *testing.T) {
 			want:   []*node.Node{node.Symbol("aaa")},
 		},
 		{
+			name:   "t",
+			tokens: []token.Token{token.Symbol("t")},
+			want:   []*node.Node{node.T()},
+		},
+		{
+			name:   "nil",
+			tokens: []token.Token{token.Symbol("nil")},
+			want:   []*node.Node{node.Nil()},
+		},
+		{
 			name:   "要素数0のlist",
 			tokens: []token.Token{token.LParen(), token.RParen()},
 			want:   []*node.Node{node.Nil()},

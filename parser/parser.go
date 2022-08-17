@@ -54,7 +54,7 @@ func (p *parser) parseNode() (*node.Node, error) {
 		}
 		return node.Int(i), nil
 	case token.TokenSymbol:
-		return node.Symbol(t.Value), nil
+		return p.parseSymbol()
 	default:
 		return nil, NewErrInvalidToken(t)
 	}
@@ -78,6 +78,21 @@ func (p *parser) parseParen() (*node.Node, error) {
 			return nil, err
 		}
 		return node.Cons(car, cdr), nil
+	}
+}
+
+func (p parser) parseSymbol() (*node.Node, error) {
+	t, ok := p.peek()
+	if !ok {
+		return nil, ErrNeedNextTokens
+	}
+	switch t.Value {
+	case "t":
+		return node.T(), nil
+	case "nil":
+		return node.Nil(), nil
+	default:
+		return node.Symbol(t.Value), nil
 	}
 }
 
