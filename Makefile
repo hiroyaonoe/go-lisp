@@ -1,5 +1,5 @@
 .PHONY:run
-run: test
+run: fmt
 	go run main.go
 
 .PHONY:build
