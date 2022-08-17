@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"strings"
+
 	"github.com/hiroyaonoe/go-lisp/token"
 )
 
@@ -43,12 +45,13 @@ func (l *lexer) parseTokens() ([]token.Token, error) {
 			tokens = append(tokens, token.RParen())
 			l.next()
 			l.reduce()
-		case '+':
-			tokens = append(tokens, token.Plus())
-			l.next()
-			l.reduce()
 		default:
 			token, ok := l.parseInt()
+			if ok {
+				tokens = append(tokens, token)
+				continue
+			}
+			token, ok = l.parseSymbol()
 			if ok {
 				tokens = append(tokens, token)
 				continue
@@ -74,13 +77,27 @@ func (l *lexer) parseInt() (token.Token, bool) {
 		r, _ := l.peek()
 		if isNumber(r) {
 			l.next()
-		} else if isSymbol(r) {
+		} else if isSymbolLetter(r) {
 			return token.Token{}, false
 		} else {
 			if l.pos == 0 {
 				return token.Token{}, false
 			}
 			return token.Int(l.reduce()), true
+		}
+	}
+}
+
+func (l *lexer) parseSymbol() (token.Token, bool) {
+	for {
+		r, _ := l.peek()
+		if isSymbolLetter(r) {
+			l.next()
+		} else {
+			if l.pos == 0 {
+				return token.Token{}, false
+			}
+			return token.Symbol(l.reduce()), true
 		}
 	}
 }
@@ -125,6 +142,6 @@ func isWhite(r rune) bool {
 	return r == ' ' || r == '\n' || r == '\r'
 }
 
-func isSymbol(r rune) bool {
-	return (r >= 'a' && r <= 'z') || r == '-' || isNumber(r)
+func isSymbolLetter(r rune) bool {
+	return (r >= 'a' && r <= 'z') || isNumber(r) || strings.ContainsRune("-+", r)
 }

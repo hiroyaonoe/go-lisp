@@ -6,12 +6,16 @@ const (
 	TokenInt tokenType = iota + 1
 	TokenLParen
 	TokenRParen
-	TokenPlus
+	TokenSymbol
 )
 
 type Token struct {
 	Type  tokenType
 	Value string
+}
+
+func (t *Token) String() string {
+	return t.Value
 }
 
 func Int(s string) Token {
@@ -34,9 +38,9 @@ func RParen() Token {
 	}
 }
 
-func Plus() Token {
+func Symbol(s string) Token {
 	return Token{
-		Type:  TokenRParen,
-		Value: "+",
+		Type:  TokenSymbol,
+		Value: s,
 	}
 }

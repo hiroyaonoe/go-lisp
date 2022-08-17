@@ -32,37 +32,62 @@ func Test_lexer_ReadString(t *testing.T) {
 		{
 			name: "(+ 1 2)",
 			s:    "(+ 1 2)",
-			want: []token.Token{token.LParen(), token.Plus(), token.Int("1"), token.Int("2"), token.RParen()},
+			want: []token.Token{token.LParen(), token.Symbol("+"), token.Int("1"), token.Int("2"), token.RParen()},
 		},
 		{
 			name: "(+ 123 456)",
 			s:    "(+ 123 456)",
-			want: []token.Token{token.LParen(), token.Plus(), token.Int("123"), token.Int("456"), token.RParen()},
+			want: []token.Token{token.LParen(), token.Symbol("+"), token.Int("123"), token.Int("456"), token.RParen()},
 		},
 		{
 			name: "  (  +  123  456  )  ",
 			s:    "  (  +  123  456  )  ",
-			want: []token.Token{token.LParen(), token.Plus(), token.Int("123"), token.Int("456"), token.RParen()},
+			want: []token.Token{token.LParen(), token.Symbol("+"), token.Int("123"), token.Int("456"), token.RParen()},
 		},
 		{
-			name:    "a",
-			s:       "a",
-			wantErr: NewErrInvalidInput("a"),
+			name: "ab",
+			s:    "ab",
+			want: []token.Token{token.Symbol("ab")},
 		},
 		{
-			name:    "( a ",
-			s:       "( a ",
-			wantErr: NewErrInvalidInput("a"),
+			name: "12ab34",
+			s:    "12ab34",
+			want: []token.Token{token.Symbol("12ab34")},
 		},
 		{
-			name:    "12a",
-			s:       "12a",
-			wantErr: NewErrInvalidInput("12a"),
+			name: "ab12cd",
+			s:    "ab12cd",
+			want: []token.Token{token.Symbol("ab12cd")},
 		},
 		{
-			name:    "abc",
-			s:       "abc",
-			wantErr: NewErrInvalidInput("abc"),
+			name: "a-b+c1d",
+			s:    "a-b+c1d",
+			want: []token.Token{token.Symbol("a-b+c1d")},
+		},
+		{
+			name:    "あ",
+			s:       "あ",
+			wantErr: NewErrInvalidInput("あ"),
+		},
+		{
+			name:    "( あ ",
+			s:       "( あ ",
+			wantErr: NewErrInvalidInput("あ"),
+		},
+		{
+			name:    "12あ",
+			s:       "12あ",
+			wantErr: NewErrInvalidInput("あ"),
+		},
+		{
+			name:    "aあ",
+			s:       "aあ",
+			wantErr: NewErrInvalidInput("あ"),
+		},
+		{
+			name:    "あ12いう",
+			s:       "あ12いう",
+			wantErr: NewErrInvalidInput("あ12いう"),
 		},
 	}
 	for _, tt := range tests {
