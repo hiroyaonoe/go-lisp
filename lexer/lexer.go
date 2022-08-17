@@ -25,28 +25,28 @@ func (l *lexer) ReadString(s string) ([]token.Token, error) {
 func (l *lexer) parseTokens() ([]token.Token, error) {
 	tokens := make([]token.Token, 0, len(l.s))
 	for {
-		r, ok := l.Peek()
+		r, ok := l.peek()
 		if !ok {
 			return tokens, nil
 		}
 		if isWhite(r) {
-			l.Next()
-			l.Reduce()
+			l.next()
+			l.reduce()
 			continue
 		}
 		switch r {
 		case '(':
 			tokens = append(tokens, token.LParen())
-			l.Next()
-			l.Reduce()
+			l.next()
+			l.reduce()
 		case ')':
 			tokens = append(tokens, token.RParen())
-			l.Next()
-			l.Reduce()
+			l.next()
+			l.reduce()
 		case '+':
 			tokens = append(tokens, token.Plus())
-			l.Next()
-			l.Reduce()
+			l.next()
+			l.reduce()
 		default:
 			token, ok := l.parseInt()
 			if ok {
@@ -55,14 +55,14 @@ func (l *lexer) parseTokens() ([]token.Token, error) {
 			}
 
 			for {
-				r, ok = l.Peek()
+				r, ok = l.peek()
 				if !ok || isWhite(r) {
 					break
 				}
-				l.Next()
+				l.next()
 			}
-			err := NewErrInvalidInput(l.Reduce())
-			l.Reset()
+			err := NewErrInvalidInput(l.reduce())
+			l.reset()
 			return tokens, err
 		}
 	}
@@ -71,32 +71,32 @@ func (l *lexer) parseTokens() ([]token.Token, error) {
 func (l *lexer) parseInt() (token.Token, bool) {
 	for {
 		// ok == true
-		r, _ := l.Peek()
+		r, _ := l.peek()
 		if isNumber(r) {
-			l.Next()
+			l.next()
 		} else if isSymbol(r) {
 			return token.Token{}, false
 		} else {
 			if l.pos == 0 {
 				return token.Token{}, false
 			}
-			return token.Int(l.Reduce()), true
+			return token.Int(l.reduce()), true
 		}
 	}
 }
 
-func (l *lexer) Next() {
+func (l *lexer) next() {
 	l.pos++
 }
 
-func (l *lexer) Peek() (rune, bool) {
+func (l *lexer) peek() (rune, bool) {
 	if l.pos >= len(l.s) {
 		return 0, false
 	}
 	return l.s[l.pos], true
 }
 
-func (l *lexer) Reduce() string {
+func (l *lexer) reduce() string {
 	if l.pos >= len(l.s) {
 		l.s = []rune{}
 		l.pos = 0
@@ -108,11 +108,11 @@ func (l *lexer) Reduce() string {
 	return v
 }
 
-func (l *lexer) Redo() {
+func (l *lexer) redo() {
 	l.pos = 0
 }
 
-func (l *lexer) Reset() {
+func (l *lexer) reset() {
 	l.s = []rune{}
 	l.pos = 0
 }
