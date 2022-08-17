@@ -25,9 +25,6 @@ func readEvalPrint() error {
 			fmt.Println(err)
 			continue
 		}
-		for _, t := range tokens {
-			fmt.Println(t.Value)
-		}
 		ast, err := p.Parse(tokens)
 		fmt.Println(ast)
 		if err != nil {
