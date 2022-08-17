@@ -23,10 +23,10 @@ func TestEnv_Eval(t *testing.T) {
 			want: node.Int(1),
 		},
 		{
-			name: "symbol",
-			env:  NewEnv(nil),
-			node: node.Symbol("a"),
-			want: node.Symbol("a"),
+			name:    "not binded symbol",
+			env:     NewEnv(nil),
+			node:    node.Symbol("a"),
+			wantErr: errors.New("not binded symbol: a"),
 		},
 		{
 			name: "引数0個のPlus",
@@ -53,9 +53,57 @@ func TestEnv_Eval(t *testing.T) {
 			want: node.Int(6),
 		},
 		{
+			name: "変数束縛",
+			env:  NewEnv(nil).setVar("x", node.Int(1)),
+			node: node.Symbol("x"),
+			want: node.Int(1),
+		},
+		{
+			name: "ローカル変数1個定義",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("let"),
+				node.List(
+					node.List(
+						node.Symbol("x"),
+						node.Int(1),
+					),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Int(2),
+					node.Symbol("x"),
+				),
+			),
+			want: node.Int(3),
+		},
+		{
+			name: "ローカル変数2個定義",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("let"),
+				node.List(
+					node.List(
+						node.Symbol("x"),
+						node.Int(1),
+					),
+					node.List(
+						node.Symbol("y"),
+						node.Int(2),
+					),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+			),
+			want: node.Int(3),
+		},
+		{
 			name:    "invalid arguments for +",
 			env:     NewEnv(nil),
-			node:    node.Cons(node.Symbol("+"), node.Cons(node.Symbol("a"), node.Nil())),
+			node:    node.Cons(node.Symbol("+"), node.Cons(node.Nil(), node.Nil())),
 			wantErr: errors.New("invalid arguments for +"),
 		},
 		{

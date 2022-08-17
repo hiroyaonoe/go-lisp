@@ -75,3 +75,15 @@ func Symbol(v string) *Node {
 		Value: v,
 	}
 }
+
+func List(ns ...*Node) *Node {
+	ret := Nil()
+	for i := len(ns) - 1; i >= 0; i-- {
+		ret = &Node{
+			Type: NodeCons,
+			Car:  ns[i],
+			Cdr:  ret,
+		}
+	}
+	return ret
+}
