@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 
@@ -23,27 +22,25 @@ func readEvalPrint() error {
 		}
 		tokens, err := l.ReadString(s.Text())
 		if err != nil {
-			e := lexer.ErrInvalidInput{}
-			if errors.As(err, &e) {
-				fmt.Println(err)
-				continue
-			}
+			fmt.Println(err)
+			continue
 		}
 		for _, t := range tokens {
 			fmt.Println(t.Value)
 		}
 		ast, err := p.Parse(tokens)
+		fmt.Println(ast)
 		if err != nil {
-			if errors.Is(err, parser.ErrNeedNextTokens) {
-				continue
+			fmt.Println(err)
+			continue
+		}
+		for _, node := range ast {
+			value, err := e.Eval(node)
+			if err != nil {
+				return err
 			}
-			return err
+			fmt.Println(value)
 		}
-		value, err := e.Eval(ast)
-		if err != nil {
-			return err
-		}
-		fmt.Println(value)
 	}
 	return nil
 }
