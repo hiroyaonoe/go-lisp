@@ -21,7 +21,17 @@ func readEvalPrint() error {
 		if !s.Scan() {
 			break
 		}
-		tokens := l.ReadString(s.Text())
+		tokens, err := l.ReadString(s.Text())
+		if err != nil {
+			e := lexer.ErrInvalidInput{}
+			if errors.As(err, &e) {
+				fmt.Println(err)
+				continue
+			}
+		}
+		for _, t := range tokens {
+			fmt.Println(t.Value)
+		}
 		ast, err := p.Parse(tokens)
 		if err != nil {
 			if errors.Is(err, parser.ErrNeedNextTokens) {
