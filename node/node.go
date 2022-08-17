@@ -37,6 +37,8 @@ func (n *Node) String() string {
 			strings.ReplaceAll(n.Cdr.String(), "\n", "\n\t"))
 	case NodeNil:
 		return "nil"
+	case NodeT:
+		return "t"
 	case NodeSymbol:
 		return fmt.Sprintf("symbol: %v", n.Value)
 	default:
