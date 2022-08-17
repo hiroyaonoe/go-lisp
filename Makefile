@@ -1,6 +1,6 @@
 .PHONY:run
 run: fmt
-	go run main.go
+	rlwrap go run main.go
 
 .PHONY:build
 build: test
