@@ -120,13 +120,13 @@ func TestEnv_Eval(t *testing.T) {
 				node.List(
 					node.Symbol("+"),
 					node.Int(1),
-					node.Int(2),
+					node.Symbol("x"),
 				),
 			),
 			want: node.List(
 				node.Symbol("+"),
 				node.Int(1),
-				node.Int(2),
+				node.Symbol("x"),
 			),
 		},
 	}
