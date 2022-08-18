@@ -24,26 +24,37 @@ type Node struct {
 }
 
 func (n *Node) String() string {
-	switch n.Type {
-	case NodeInt:
-		return fmt.Sprintf("int: %v", n.Value)
-	case NodeCons:
-		return fmt.Sprintf(
-			`cons: {
-	%v,
-	%v,
-}`,
-			strings.ReplaceAll(n.Car.String(), "\n", "\n\t"),
-			strings.ReplaceAll(n.Cdr.String(), "\n", "\n\t"))
-	case NodeNil:
-		return "nil"
-	case NodeT:
-		return "t"
-	case NodeSymbol:
-		return fmt.Sprintf("symbol: %v", n.Value)
-	default:
-		return fmt.Sprintf("%v: %v, %v, %v", n.Type, n.Value, n.Car, n.Cdr)
+	l, ok := ListToNodes(n)
+	if ok {
+		if len(l) == 0 {
+			return "nil"
+		}
+		ret := make([]string, len(l))
+		for i, v := range l {
+			ret[i] = v.String()
+		}
+		return fmt.Sprintf("(%v)", strings.Join(ret, " "))
 	}
+	if Is(n, NodeCons) {
+		return fmt.Sprintf("(%v . %v)", n.Car, n.Cdr)
+	}
+	return fmt.Sprintf("%v", n.Value)
+}
+
+func ListToNodes(n *Node) ([]*Node, bool) {
+	ret := make([]*Node, 0, 2)
+	for {
+		if Is(n, NodeNil) {
+			return ret, true
+		}
+		if Is(n, NodeCons) {
+			ret = append(ret, n.Car)
+			n = n.Cdr
+			continue
+		}
+		return nil, false
+	}
+
 }
 
 func Is(n *Node, t nodeType) bool {

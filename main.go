@@ -36,7 +36,7 @@ func readEvalPrint() error {
 				fmt.Println(err)
 				continue
 			}
-			fmt.Println(ret)
+			fmt.Println("val:", ret)
 		}
 	}
 	return nil
