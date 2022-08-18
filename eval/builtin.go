@@ -15,6 +15,7 @@ func init() {
 	builtin["+"] = doPlus
 	builtin["let"] = doLet
 	builtin["quote"] = doQuote
+	builtin["cons"] = doCons
 }
 
 func doPlus(env *Env, n *node.Node) (*node.Node, error) {
@@ -76,4 +77,20 @@ func doQuote(env *Env, n *node.Node) (*node.Node, error) {
 		return nil, errors.New("invalid arguments for quote")
 	}
 	return args[0], nil
+}
+
+func doCons(env *Env, n *node.Node) (*node.Node, error) {
+	args, ok := node.ListToNodes(n)
+	if !ok || len(args) != 2 {
+		return nil, errors.New("invalid arguments for cons")
+	}
+	car, err := env.eval(args[0])
+	if err != nil {
+		return nil, err
+	}
+	cdr, err := env.eval(args[1])
+	if err != nil {
+		return nil, err
+	}
+	return node.Cons(car, cdr), nil
 }

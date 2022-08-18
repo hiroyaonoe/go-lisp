@@ -129,6 +129,27 @@ func TestEnv_Eval(t *testing.T) {
 				node.Symbol("x"),
 			),
 		},
+		{
+			name: "cons",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("cons"),
+				node.List(
+					node.Symbol("+"),
+					node.Int(1),
+					node.Int(2),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Int(3),
+					node.Int(4),
+				),
+			),
+			want: node.Cons(
+				node.Int(3),
+				node.Int(7),
+			),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
