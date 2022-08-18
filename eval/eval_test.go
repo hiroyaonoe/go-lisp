@@ -112,6 +112,23 @@ func TestEnv_Eval(t *testing.T) {
 			node:    node.List(node.Int(1), node.Int(2)),
 			wantErr: errors.New("illegal function call"),
 		},
+		{
+			name: "quote",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("quote"),
+				node.List(
+					node.Symbol("+"),
+					node.Int(1),
+					node.Int(2),
+				),
+			),
+			want: node.List(
+				node.Symbol("+"),
+				node.Int(1),
+				node.Int(2),
+			),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

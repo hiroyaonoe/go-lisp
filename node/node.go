@@ -46,6 +46,14 @@ func (n *Node) String() string {
 	}
 }
 
+func Is(n *Node, t nodeType) bool {
+	return n != nil && n.Type == t
+}
+
+func NotIs(n *Node, t nodeType) bool {
+	return !Is(n, t)
+}
+
 func Int(i int) *Node {
 	return &Node{
 		Type:  NodeInt,

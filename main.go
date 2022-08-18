@@ -26,7 +26,6 @@ func readEvalPrint() error {
 			continue
 		}
 		ast, err := p.Parse(tokens)
-		fmt.Println(ast)
 		if err != nil {
 			fmt.Println(err)
 			continue

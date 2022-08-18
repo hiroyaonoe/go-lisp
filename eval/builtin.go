@@ -15,6 +15,7 @@ func init() {
 	builtin = map[string]Fun{}
 	builtin["+"] = doPlus
 	builtin["let"] = doLet
+	builtin["quote"] = doQuote
 }
 
 func doPlus(env *Env, n *node.Node) (*node.Node, error) {
@@ -80,4 +81,13 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 		return nil, ierr
 	}
 	return lenv.eval(n.Cdr.Car)
+}
+
+func doQuote(env *Env, n *node.Node) (*node.Node, error) {
+	if node.Is(n, node.NodeCons) &&
+		node.Is(n.Car, node.NodeCons) &&
+		node.Is(n.Cdr, node.NodeNil) {
+		return n.Car, nil
+	}
+	return nil, errors.New("invalid arguments for quote")
 }
