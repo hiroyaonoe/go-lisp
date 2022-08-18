@@ -2,7 +2,6 @@ package eval
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/hiroyaonoe/go-lisp/node"
 )
@@ -19,75 +18,62 @@ func init() {
 }
 
 func doPlus(env *Env, n *node.Node) (*node.Node, error) {
+	args, ok := node.ListToNodes(n)
+	if !ok {
+		return nil, errors.New("invalid arguments for +")
+	}
 	ret := node.Int(0)
-	for {
-		if n == nil || n.Type == node.NodeNil {
-			return ret, nil
-		}
-		if n.Type != node.NodeCons {
-			return nil, errors.New("invalid arguments for +")
-		}
-		v, err := env.eval(n.Car)
+	for _, nn := range args {
+		v, err := env.eval(nn)
 		if err != nil {
 			return nil, err
 		}
-		if v == nil || v.Type != node.NodeInt {
+		if node.NotIs(v, node.NodeInt) {
 			return nil, errors.New("invalid arguments for +")
 		}
 		ret.Value = ret.Value.(int) + v.Value.(int)
-		n = n.Cdr
 	}
+	return ret, nil
 }
 
 func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	ierr := errors.New("invalid arguments for let")
-	if n == nil || n.Type != node.NodeCons {
+	args, ok := node.ListToNodes(n)
+	if !ok || len(args) != 2 {
 		return nil, ierr
 	}
-	kvs := n.Car
-	kvmap := map[string]*node.Node{}
-	for {
-		if kvs == nil || kvs.Type == node.NodeNil {
-			break
-		}
-		if kvs.Type != node.NodeCons {
-			return nil, ierr
-		}
-		kv := kvs.Car
-		if kv == nil || kv.Type != node.NodeCons {
-			return nil, ierr
-		}
-		if kv.Car.Type != node.NodeSymbol {
-			return nil, ierr
-		}
-		if kv.Cdr.Type != node.NodeCons {
-			return nil, ierr
-		}
-		k := kv.Car.Value.(string)
-
-		v, err := env.eval(kv.Cdr.Car)
-		if err != nil {
-			return nil, err
-		}
-		kvmap[k] = v
-		kvs = kvs.Cdr
+	kvs, ok := node.ListToNodes(args[0])
+	if !ok {
+		return nil, ierr
 	}
+	kvmap := make(map[string]*node.Node, len(kvs))
+	for _, kvlist := range kvs {
+		kv, ok := node.ListToNodes(kvlist)
+		if !ok || len(kv) != 2 {
+			return nil, ierr
+		}
+		k := kv[0]
+		if node.NotIs(k, node.NodeSymbol) {
+			return nil, ierr
+		}
+		kvmap[k.Value.(string)] = kv[1]
+	}
+
 	lenv := NewEnv(env)
 	for k, v := range kvmap {
-		fmt.Println(k, v)
 		lenv.setVar(k, v)
 	}
-	if n.Cdr.Type != node.NodeCons {
-		return nil, ierr
+	body := args[1]
+	if node.Is(body, node.NodeCons) {
+		return lenv.eval(body)
 	}
-	return lenv.eval(n.Cdr.Car)
+	return nil, ierr
 }
 
 func doQuote(env *Env, n *node.Node) (*node.Node, error) {
-	if node.Is(n, node.NodeCons) &&
-		node.Is(n.Car, node.NodeCons) &&
-		node.Is(n.Cdr, node.NodeNil) {
-		return n.Car, nil
+	args, ok := node.ListToNodes(n)
+	if !ok || len(args) != 1 {
+		return nil, errors.New("invalid arguments for quote")
 	}
-	return nil, errors.New("invalid arguments for quote")
+	return args[0], nil
 }
