@@ -307,6 +307,34 @@ func TestEnv_Eval(t *testing.T) {
 			),
 			want: node.Int(3),
 		},
+		{
+			name: "princ(string)",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("princ"),
+				node.Str("aaa"),
+			),
+			want: node.Str("aaa"),
+		},
+		{
+			name: "princ(int)",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("princ"),
+				node.Int(1),
+			),
+			want: node.Int(1),
+		},
+		{
+			name: "princ(error)",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("princ"),
+				node.Int(1),
+				node.Int(1),
+			),
+			wantErr: errors.New("builtin princ: invalid arguments"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

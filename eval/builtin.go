@@ -3,6 +3,7 @@ package eval
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hiroyaonoe/go-lisp/node"
 )
@@ -21,6 +22,7 @@ func init() {
 	builtin["cons"] = wrapFun("cons", doCons)
 	builtin["defun"] = wrapFun("defun", doDefun)
 	builtin["lambda"] = wrapFun("lambda", doLambda)
+	builtin["princ"] = wrapFun("princ", doPrinc)
 }
 
 func wrapFun(name string, f Fun) Fun {
@@ -165,4 +167,27 @@ func doLambda(env *Env, n *node.Node) (*node.Node, error) {
 	closure := node.Fun(env, params[0], params[1])
 
 	return closure, nil
+}
+
+func doPrinc(env *Env, n *node.Node) (*node.Node, error) {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 1 {
+		return nil, ErrInvalidArguments
+	}
+	v, err := eval(env, params[0])
+	if err != nil {
+		return nil, err
+	}
+	var s string
+	if node.Is(v, node.NodeStr) {
+		s = v.Value.(string)
+	} else if node.Is(v, node.NodeInt) {
+		i := v.Value.(int)
+		s = strconv.Itoa(i)
+	} else {
+		return nil, ErrInvalidArguments
+	}
+
+	fmt.Print(s)
+	return v, nil
 }
