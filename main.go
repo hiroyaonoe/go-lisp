@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
@@ -15,8 +16,13 @@ func readEvalPrint() error {
 	l := lexer.NewLexer()
 	p := parser.NewParser()
 	e := eval.NewEnv(nil)
+	new := true
 	for {
-		fmt.Print("> ")
+		if new {
+			fmt.Print(" > ")
+		} else {
+			fmt.Print("*> ")
+		}
 		if !s.Scan() {
 			break
 		}
@@ -27,6 +33,10 @@ func readEvalPrint() error {
 		}
 		ast, err := p.Parse(tokens)
 		if err != nil {
+			if errors.Is(err, parser.ErrNeedNextTokens) {
+				new = false
+				continue
+			}
 			fmt.Println(err)
 			continue
 		}
@@ -38,6 +48,7 @@ func readEvalPrint() error {
 			}
 			fmt.Println("val:", ret)
 		}
+		new = true
 	}
 	return nil
 }
