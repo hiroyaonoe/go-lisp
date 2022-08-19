@@ -9,6 +9,7 @@ type nodeType int
 
 const (
 	NodeInt nodeType = iota + 1
+	NodeStr
 	NodeCons
 	NodeNil
 	NodeT
@@ -44,6 +45,8 @@ func (n *Node) String() string {
 		return fmt.Sprintf("(%v . %v)", n.Car, n.Cdr)
 	case NodeFun:
 		return fmt.Sprintf("<fun %v %v>", n.Car, n.Cdr)
+	case NodeStr:
+		return fmt.Sprintf("\"%v\"", n.Value)
 	default:
 		return fmt.Sprintf("%v", n.Value)
 	}
@@ -77,6 +80,13 @@ func Int(i int) *Node {
 	return &Node{
 		Type:  NodeInt,
 		Value: i,
+	}
+}
+
+func Str(s string) *Node {
+	return &Node{
+		Type:  NodeStr,
+		Value: s,
 	}
 }
 

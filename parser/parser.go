@@ -2,6 +2,7 @@ package parser
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/hiroyaonoe/go-lisp/node"
 	"github.com/hiroyaonoe/go-lisp/token"
@@ -41,7 +42,7 @@ func (p *parser) Parse(tokens []token.Token) ([]*node.Node, error) {
 func (p *parser) parseNode() (*node.Node, error) {
 	t, ok := p.peek()
 	if !ok {
-		return nil, ErrNeedNextTokens
+		return nil, EOF
 	}
 	switch t.Type {
 	case token.TokenLParen:
@@ -53,6 +54,11 @@ func (p *parser) parseNode() (*node.Node, error) {
 			return nil, NewErrInvalidToken(t)
 		}
 		return node.Int(i), nil
+	case token.TokenStr:
+		s := t.Value
+		s = strings.TrimPrefix(s, "\"")
+		s = strings.TrimSuffix(s, "\"")
+		return node.Str(s), nil
 	case token.TokenSymbol:
 		return p.parseSymbol()
 	default:
@@ -63,7 +69,7 @@ func (p *parser) parseNode() (*node.Node, error) {
 func (p *parser) parseParen() (*node.Node, error) {
 	t, ok := p.peek()
 	if !ok {
-		return nil, ErrNeedNextTokens
+		return nil, EOF
 	}
 	if t.Type == token.TokenRParen {
 		return node.Nil(), nil
@@ -84,7 +90,7 @@ func (p *parser) parseParen() (*node.Node, error) {
 func (p parser) parseSymbol() (*node.Node, error) {
 	t, ok := p.peek()
 	if !ok {
-		return nil, ErrNeedNextTokens
+		return nil, EOF
 	}
 	switch t.Value {
 	case "t":

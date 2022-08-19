@@ -1,35 +1,41 @@
 package lexer
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/hiroyaonoe/go-lisp/token"
 )
 
+var (
+	EOF = errors.New("EOF")
+)
+
 type lexer struct {
-	s   []rune
-	pos int
+	tokens []token.Token
+	s      []rune
+	pos    int
 }
 
 func NewLexer() *lexer {
 	return &lexer{
-		s:   []rune{},
-		pos: 0,
+		tokens: []token.Token{},
+		s:      []rune{},
+		pos:    0,
 	}
 }
 
 func (l *lexer) ReadString(s string) ([]token.Token, error) {
 	l.s = append(l.s, []rune(s)...)
-	l.s = append(l.s, ' ')
+	l.s = append(l.s, '\n')
 	return l.parseTokens()
 }
 
 func (l *lexer) parseTokens() ([]token.Token, error) {
-	tokens := make([]token.Token, 0, len(l.s))
 	for {
 		r, ok := l.peek()
 		if !ok {
-			return tokens, nil
+			return l.reset(), nil
 		}
 		if isWhite(r) {
 			l.next()
@@ -38,22 +44,28 @@ func (l *lexer) parseTokens() ([]token.Token, error) {
 		}
 		switch r {
 		case '(':
-			tokens = append(tokens, token.LParen())
+			l.append(token.LParen())
 			l.next()
 			l.reduce()
 		case ')':
-			tokens = append(tokens, token.RParen())
+			l.append(token.RParen())
 			l.next()
 			l.reduce()
+		case '"':
+			t, ok := l.parseStr()
+			if !ok {
+				return nil, EOF
+			}
+			l.append(t)
 		default:
 			token, ok := l.parseInt()
 			if ok {
-				tokens = append(tokens, token)
+				l.append(token)
 				continue
 			}
 			token, ok = l.parseSymbol()
 			if ok {
-				tokens = append(tokens, token)
+				l.append(token)
 				continue
 			}
 
@@ -65,8 +77,22 @@ func (l *lexer) parseTokens() ([]token.Token, error) {
 				l.next()
 			}
 			err := NewErrInvalidInput(l.reduce())
-			l.reset()
-			return tokens, err
+			return l.reset(), err
+		}
+	}
+}
+
+func (l *lexer) parseStr() (token.Token, bool) {
+	for {
+		l.next()
+		r, ok := l.peek()
+		if !ok {
+			l.redo()
+			return token.Token{}, false
+		}
+		if r == '"' {
+			l.next()
+			return token.Str(l.reduce()), true
 		}
 	}
 }
@@ -129,9 +155,16 @@ func (l *lexer) redo() {
 	l.pos = 0
 }
 
-func (l *lexer) reset() {
+func (l *lexer) reset() []token.Token {
 	l.s = []rune{}
 	l.pos = 0
+	t := l.tokens
+	l.tokens = []token.Token{}
+	return t
+}
+
+func (l *lexer) append(ts ...token.Token) {
+	l.tokens = append(l.tokens, ts...)
 }
 
 func isNumber(r rune) bool {

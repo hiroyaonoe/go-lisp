@@ -89,6 +89,26 @@ func Test_lexer_ReadString(t *testing.T) {
 			s:       "あ12いう",
 			wantErr: NewErrInvalidInput("あ12いう"),
 		},
+		{
+			name: "\"aaa\"",
+			s:    "\"aaa\"",
+			want: []token.Token{token.Str("\"aaa\"")},
+		},
+		{
+			name: " \" あ 1 a \" ",
+			s:    " \" あ 1 a \" ",
+			want: []token.Token{token.Str("\" あ 1 a \"")},
+		},
+		{
+			name: "\"aa\naa\"",
+			s:    "\"aa\naa\"",
+			want: []token.Token{token.Str("\"aa\naa\"")},
+		},
+		{
+			name:    "aa\"aa",
+			s:       "aa\"aa",
+			wantErr: EOF,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

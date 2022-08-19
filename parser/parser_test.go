@@ -21,6 +21,21 @@ func Test_parser_Parse(t *testing.T) {
 			want:   []*node.Node{node.Int(1)},
 		},
 		{
+			name:   "string",
+			tokens: []token.Token{token.Str("\"aaa\"")},
+			want:   []*node.Node{node.Str("aaa")},
+		},
+		{
+			name:   "改行ありstring",
+			tokens: []token.Token{token.Str("\"a\na\"")},
+			want:   []*node.Node{node.Str("a\na")},
+		},
+		{
+			name:   "ダブルクウォートありstring",
+			tokens: []token.Token{token.Str("\"a\"a\"")},
+			want:   []*node.Node{node.Str("a\"a")},
+		},
+		{
 			name:   "symbol",
 			tokens: []token.Token{token.Symbol("aaa")},
 			want:   []*node.Node{node.Symbol("aaa")},
@@ -103,7 +118,7 @@ func Test_parser_Parse(t *testing.T) {
 		{
 			name:    "RParenが足りない",
 			tokens:  []token.Token{token.LParen(), token.Int("1")},
-			wantErr: ErrNeedNextTokens,
+			wantErr: EOF,
 		},
 	}
 	for _, tt := range tests {

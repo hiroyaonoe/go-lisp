@@ -28,16 +28,22 @@ func readEvalPrint() error {
 		}
 		tokens, err := l.ReadString(s.Text())
 		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		ast, err := p.Parse(tokens)
-		if err != nil {
-			if errors.Is(err, parser.ErrNeedNextTokens) {
+			if errors.Is(err, lexer.EOF) {
 				new = false
 				continue
 			}
 			fmt.Println(err)
+			new = true
+			continue
+		}
+		ast, err := p.Parse(tokens)
+		if err != nil {
+			if errors.Is(err, parser.EOF) {
+				new = false
+				continue
+			}
+			fmt.Println(err)
+			new = true
 			continue
 		}
 		for _, node := range ast {

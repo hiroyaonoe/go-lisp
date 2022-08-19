@@ -7,6 +7,7 @@ const (
 	TokenLParen
 	TokenRParen
 	TokenSymbol
+	TokenStr
 )
 
 type Token struct {
@@ -31,6 +32,7 @@ func LParen() Token {
 		Value: "(",
 	}
 }
+
 func RParen() Token {
 	return Token{
 		Type:  TokenRParen,
@@ -41,6 +43,13 @@ func RParen() Token {
 func Symbol(s string) Token {
 	return Token{
 		Type:  TokenSymbol,
+		Value: s,
+	}
+}
+
+func Str(s string) Token {
+	return Token{
+		Type:  TokenStr,
 		Value: s,
 	}
 }

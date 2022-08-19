@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrNeedNextTokens = errors.New("must read next tokens")
+	EOF = errors.New("EOF")
 )
 
 type ErrInvalidToken struct {
