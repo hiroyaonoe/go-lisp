@@ -20,6 +20,7 @@ func init() {
 	builtin["quote"] = wrapFun("quote", doQuote)
 	builtin["cons"] = wrapFun("cons", doCons)
 	builtin["defun"] = wrapFun("defun", doDefun)
+	builtin["lambda"] = wrapFun("lambda", doLambda)
 }
 
 func wrapFun(name string, f Fun) Fun {
@@ -141,6 +142,27 @@ func doDefun(env *Env, n *node.Node) (*node.Node, error) {
 	closure := node.Fun(env, params[1], params[2])
 	global := env.Global()
 	global.setFun(name, closure)
+
+	return closure, nil
+}
+
+func doLambda(env *Env, n *node.Node) (*node.Node, error) {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 2 {
+		return nil, ErrInvalidArguments
+	}
+
+	args, ok := node.ListToNodes(params[0])
+	if !ok {
+		return nil, ErrInvalidArguments
+	}
+	for _, arg := range args {
+		if node.NotIs(arg, node.NodeSymbol) {
+			return nil, ErrInvalidArguments
+		}
+	}
+
+	closure := node.Fun(env, params[0], params[1])
 
 	return closure, nil
 }

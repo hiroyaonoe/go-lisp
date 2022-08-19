@@ -228,6 +228,85 @@ func TestEnv_Eval(t *testing.T) {
 			),
 			want: node.Int(5),
 		},
+		{
+			name: "lambda",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("lambda"),
+				node.List(
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+			),
+			want: node.Fun(
+				NewEnv(nil),
+				node.List(
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+			),
+		},
+		{
+			name: "letでlambda関数を変数に格納",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("let"),
+				node.List(
+					node.List(
+						node.Symbol("x"),
+						node.List(
+							node.Symbol("lambda"),
+							node.List(
+								node.Symbol("x"),
+								node.Symbol("y"),
+							),
+							node.List(
+								node.Symbol("+"),
+								node.Symbol("x"),
+								node.Symbol("y"),
+							),
+						),
+					),
+				),
+				node.List(
+					node.Symbol("x"),
+					node.Int(1),
+					node.Int(2),
+				),
+			),
+			want: node.Int(3),
+		},
+		{
+			name: "lambda関数にそのまま関数適用",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.List(
+					node.Symbol("lambda"),
+					node.List(
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+					node.List(
+						node.Symbol("+"),
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+				),
+				node.Int(1),
+				node.Int(2),
+			),
+			want: node.Int(3),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

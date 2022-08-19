@@ -23,10 +23,17 @@ func eval(e *Env, n *node.Node) (*node.Node, error) {
 			if ok {
 				return call(closure, cdr)
 			}
-			// TODO: lambda関数
+			v, ok := e.getVar(name)
+			if ok {
+				return call(v, cdr)
+			}
 			return nil, fmt.Errorf("not function-binded symbol: %s", name)
 		default:
-			return nil, errors.New("illegal function call")
+			v, err := eval(e, car)
+			if err != nil {
+				return nil, err
+			}
+			return call(v, cdr)
 		}
 	case node.NodeSymbol:
 		name := n.Value.(string)
@@ -41,8 +48,11 @@ func eval(e *Env, n *node.Node) (*node.Node, error) {
 }
 
 func call(f *node.Node, argsNode *node.Node) (*node.Node, error) {
-	env := f.Value.(*Env)
-	scope := NewEnv(env)
+	if node.NotIs(f, node.NodeFun) {
+		return nil, errors.New("illegal function call")
+	}
+
+	scope := NewEnv(f.Value.(*Env))
 	vars, _ := node.ListToNodes(f.Car)
 	args, ok := node.ListToNodes(argsNode)
 	if !ok {
