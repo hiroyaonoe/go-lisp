@@ -70,7 +70,11 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 		if node.NotIs(k, node.NodeSymbol) {
 			return nil, ErrInvalidArguments
 		}
-		kvmap[k.Value.(string)] = kv[1]
+		v, err := eval(env, kv[1])
+		if err != nil {
+			return nil, err
+		}
+		kvmap[k.Value.(string)] = v
 	}
 
 	lenv := NewEnv(env)
