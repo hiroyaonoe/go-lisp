@@ -2,9 +2,12 @@ package eval
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/hiroyaonoe/go-lisp/node"
 )
+
+var ErrInvalidArguments = errors.New("invalid arguments")
 
 type Fun func(*Env, *node.Node) (*node.Node, error)
 
@@ -12,17 +15,27 @@ var builtin map[string]Fun
 
 func init() {
 	builtin = map[string]Fun{}
-	builtin["+"] = doPlus
-	builtin["let"] = doLet
-	builtin["quote"] = doQuote
-	builtin["cons"] = doCons
-	builtin["defun"] = doDefun
+	builtin["+"] = wrapFun("+", doPlus)
+	builtin["let"] = wrapFun("let", doLet)
+	builtin["quote"] = wrapFun("quote", doQuote)
+	builtin["cons"] = wrapFun("cons", doCons)
+	builtin["defun"] = wrapFun("defun", doDefun)
+}
+
+func wrapFun(name string, f Fun) Fun {
+	return func(env *Env, n *node.Node) (*node.Node, error) {
+		nn, err := f(env, n)
+		if err != nil {
+			err = fmt.Errorf("builtin %s: %w", name, err)
+		}
+		return nn, err
+	}
 }
 
 func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
 	if !ok {
-		return nil, errors.New("invalid arguments for +")
+		return nil, ErrInvalidArguments
 	}
 	ret := node.Int(0)
 	for _, nn := range params {
@@ -31,7 +44,7 @@ func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 			return nil, err
 		}
 		if node.NotIs(v, node.NodeInt) {
-			return nil, errors.New("invalid arguments for +")
+			return nil, ErrInvalidArguments
 		}
 		ret.Value = ret.Value.(int) + v.Value.(int)
 	}
@@ -39,24 +52,23 @@ func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 }
 
 func doLet(env *Env, n *node.Node) (*node.Node, error) {
-	ierr := errors.New("invalid arguments for let")
 	params, ok := node.ListToNodes(n)
 	if !ok || len(params) != 2 {
-		return nil, ierr
+		return nil, ErrInvalidArguments
 	}
 	kvs, ok := node.ListToNodes(params[0])
 	if !ok {
-		return nil, ierr
+		return nil, ErrInvalidArguments
 	}
 	kvmap := make(map[string]*node.Node, len(kvs))
 	for _, kvlist := range kvs {
 		kv, ok := node.ListToNodes(kvlist)
 		if !ok || len(kv) != 2 {
-			return nil, ierr
+			return nil, ErrInvalidArguments
 		}
 		k := kv[0]
 		if node.NotIs(k, node.NodeSymbol) {
-			return nil, ierr
+			return nil, ErrInvalidArguments
 		}
 		kvmap[k.Value.(string)] = kv[1]
 	}
@@ -69,13 +81,13 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	if node.Is(body, node.NodeCons) {
 		return eval(lenv, body)
 	}
-	return nil, ierr
+	return nil, ErrInvalidArguments
 }
 
 func doQuote(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
 	if !ok || len(params) != 1 {
-		return nil, errors.New("invalid arguments for quote")
+		return nil, ErrInvalidArguments
 	}
 	return params[0], nil
 }
@@ -83,7 +95,7 @@ func doQuote(env *Env, n *node.Node) (*node.Node, error) {
 func doCons(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
 	if !ok || len(params) != 2 {
-		return nil, errors.New("invalid arguments for cons")
+		return nil, ErrInvalidArguments
 	}
 	car, err := eval(env, params[0])
 	if err != nil {
@@ -99,21 +111,21 @@ func doCons(env *Env, n *node.Node) (*node.Node, error) {
 func doDefun(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
 	if !ok || len(params) != 3 {
-		return nil, errors.New("invalid arguments for defun")
+		return nil, ErrInvalidArguments
 	}
 
 	if node.NotIs(params[0], node.NodeSymbol) {
-		return nil, errors.New("invalid arguments for defun")
+		return nil, ErrInvalidArguments
 	}
 	name := params[0].Value.(string)
 
 	args, ok := node.ListToNodes(params[1])
 	if !ok {
-		return nil, errors.New("invalid arguments for defun")
+		return nil, ErrInvalidArguments
 	}
 	for _, arg := range args {
 		if node.NotIs(arg, node.NodeSymbol) {
-			return nil, errors.New("invalid arguments for defun")
+			return nil, ErrInvalidArguments
 		}
 	}
 

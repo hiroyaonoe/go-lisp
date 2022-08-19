@@ -104,7 +104,7 @@ func TestEnv_Eval(t *testing.T) {
 			name:    "invalid arguments for +",
 			env:     NewEnv(nil),
 			node:    node.List(node.Symbol("+"), node.Nil()),
-			wantErr: errors.New("invalid arguments for +"),
+			wantErr: errors.New("builtin +: invalid arguments"),
 		},
 		{
 			name:    "illegal function call",
