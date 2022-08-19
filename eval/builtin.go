@@ -53,7 +53,7 @@ func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 
 func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
-	if !ok || len(params) != 2 {
+	if !ok || len(params) < 2 {
 		return nil, ErrInvalidArguments
 	}
 	kvs, ok := node.ListToNodes(params[0])
@@ -81,11 +81,16 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	for k, v := range kvmap {
 		lenv.setVar(k, v)
 	}
-	body := params[1]
-	if node.Is(body, node.NodeCons) {
-		return eval(lenv, body)
+	bodys := params[1:]
+	var ret *node.Node
+	var err error
+	for _, body := range bodys {
+		ret, err = eval(lenv, body)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return nil, ErrInvalidArguments
+	return ret, nil
 }
 
 func doQuote(env *Env, n *node.Node) (*node.Node, error) {

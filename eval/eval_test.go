@@ -59,7 +59,7 @@ func TestEnv_Eval(t *testing.T) {
 			want: node.Int(1),
 		},
 		{
-			name: "ローカル変数1個定義",
+			name: "letで変数1個定義",
 			env:  NewEnv(nil),
 			node: node.List(
 				node.Symbol("let"),
@@ -78,7 +78,7 @@ func TestEnv_Eval(t *testing.T) {
 			want: node.Int(3),
 		},
 		{
-			name: "ローカル変数2個定義",
+			name: "letで変数2個定義",
 			env:  NewEnv(nil),
 			node: node.List(
 				node.Symbol("let"),
@@ -96,6 +96,26 @@ func TestEnv_Eval(t *testing.T) {
 					node.Symbol("+"),
 					node.Symbol("x"),
 					node.Symbol("y"),
+				),
+			),
+			want: node.Int(3),
+		},
+		{
+			name: "letで2個評価",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("let"),
+				node.List(
+					node.List(
+						node.Symbol("x"),
+						node.Int(1),
+					),
+				),
+				node.Symbol("x"),
+				node.List(
+					node.Symbol("+"),
+					node.Int(2),
+					node.Symbol("x"),
 				),
 			),
 			want: node.Int(3),
