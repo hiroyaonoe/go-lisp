@@ -25,7 +25,7 @@ func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 	}
 	ret := node.Int(0)
 	for _, nn := range args {
-		v, err := env.eval(nn)
+		v, err := eval(env, nn)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +66,7 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	}
 	body := args[1]
 	if node.Is(body, node.NodeCons) {
-		return lenv.eval(body)
+		return eval(lenv, body)
 	}
 	return nil, ierr
 }
@@ -84,11 +84,11 @@ func doCons(env *Env, n *node.Node) (*node.Node, error) {
 	if !ok || len(args) != 2 {
 		return nil, errors.New("invalid arguments for cons")
 	}
-	car, err := env.eval(args[0])
+	car, err := eval(env, args[0])
 	if err != nil {
 		return nil, err
 	}
-	cdr, err := env.eval(args[1])
+	cdr, err := eval(env, args[1])
 	if err != nil {
 		return nil, err
 	}
