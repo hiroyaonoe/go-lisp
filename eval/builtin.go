@@ -99,21 +99,21 @@ func doCons(env *Env, n *node.Node) (*node.Node, error) {
 func doDefun(env *Env, n *node.Node) (*node.Node, error) {
 	params, ok := node.ListToNodes(n)
 	if !ok || len(params) != 3 {
-		return nil, errors.New("invalid arguments for cons")
+		return nil, errors.New("invalid arguments for defun")
 	}
 
 	if node.NotIs(params[0], node.NodeSymbol) {
-		return nil, errors.New("invalid arguments for cons")
+		return nil, errors.New("invalid arguments for defun")
 	}
 	name := params[0].Value.(string)
 
 	args, ok := node.ListToNodes(params[1])
 	if !ok {
-		return nil, errors.New("invalid arguments for cons")
+		return nil, errors.New("invalid arguments for defun")
 	}
 	for _, arg := range args {
 		if node.NotIs(arg, node.NodeSymbol) {
-			return nil, errors.New("invalid arguments for cons")
+			return nil, errors.New("invalid arguments for defun")
 		}
 	}
 
