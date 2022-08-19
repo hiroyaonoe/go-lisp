@@ -19,6 +19,10 @@ func eval(e *Env, n *node.Node) (*node.Node, error) {
 			if ok {
 				return fn(e, cdr)
 			}
+			closure, ok := e.getFun(name)
+			if ok {
+				return call(closure, cdr)
+			}
 			// TODO: lambda関数
 			return nil, fmt.Errorf("not function-binded symbol: %s", name)
 		default:
@@ -34,4 +38,24 @@ func eval(e *Env, n *node.Node) (*node.Node, error) {
 	default:
 		return n, nil
 	}
+}
+
+func call(f *node.Node, argsNode *node.Node) (*node.Node, error) {
+	env := f.Value.(*Env)
+	scope := NewEnv(env)
+	vars, _ := node.ListToNodes(f.Car)
+	args, ok := node.ListToNodes(argsNode)
+	if !ok {
+		return nil, fmt.Errorf("invalid arguments")
+	}
+	num := len(vars)
+	if len(args) != num {
+		return nil, fmt.Errorf("missing the number of arguments")
+	}
+
+	for i := 0; i < num; i++ {
+		scope.setVar(vars[i].Value.(string), args[i])
+	}
+
+	return eval(scope, f.Cdr)
 }

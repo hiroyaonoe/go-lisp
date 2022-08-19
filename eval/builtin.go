@@ -16,15 +16,16 @@ func init() {
 	builtin["let"] = doLet
 	builtin["quote"] = doQuote
 	builtin["cons"] = doCons
+	builtin["defun"] = doDefun
 }
 
 func doPlus(env *Env, n *node.Node) (*node.Node, error) {
-	args, ok := node.ListToNodes(n)
+	params, ok := node.ListToNodes(n)
 	if !ok {
 		return nil, errors.New("invalid arguments for +")
 	}
 	ret := node.Int(0)
-	for _, nn := range args {
+	for _, nn := range params {
 		v, err := eval(env, nn)
 		if err != nil {
 			return nil, err
@@ -39,11 +40,11 @@ func doPlus(env *Env, n *node.Node) (*node.Node, error) {
 
 func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	ierr := errors.New("invalid arguments for let")
-	args, ok := node.ListToNodes(n)
-	if !ok || len(args) != 2 {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 2 {
 		return nil, ierr
 	}
-	kvs, ok := node.ListToNodes(args[0])
+	kvs, ok := node.ListToNodes(params[0])
 	if !ok {
 		return nil, ierr
 	}
@@ -64,7 +65,7 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 	for k, v := range kvmap {
 		lenv.setVar(k, v)
 	}
-	body := args[1]
+	body := params[1]
 	if node.Is(body, node.NodeCons) {
 		return eval(lenv, body)
 	}
@@ -72,25 +73,53 @@ func doLet(env *Env, n *node.Node) (*node.Node, error) {
 }
 
 func doQuote(env *Env, n *node.Node) (*node.Node, error) {
-	args, ok := node.ListToNodes(n)
-	if !ok || len(args) != 1 {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 1 {
 		return nil, errors.New("invalid arguments for quote")
 	}
-	return args[0], nil
+	return params[0], nil
 }
 
 func doCons(env *Env, n *node.Node) (*node.Node, error) {
-	args, ok := node.ListToNodes(n)
-	if !ok || len(args) != 2 {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 2 {
 		return nil, errors.New("invalid arguments for cons")
 	}
-	car, err := eval(env, args[0])
+	car, err := eval(env, params[0])
 	if err != nil {
 		return nil, err
 	}
-	cdr, err := eval(env, args[1])
+	cdr, err := eval(env, params[1])
 	if err != nil {
 		return nil, err
 	}
 	return node.Cons(car, cdr), nil
+}
+
+func doDefun(env *Env, n *node.Node) (*node.Node, error) {
+	params, ok := node.ListToNodes(n)
+	if !ok || len(params) != 3 {
+		return nil, errors.New("invalid arguments for cons")
+	}
+
+	if node.NotIs(params[0], node.NodeSymbol) {
+		return nil, errors.New("invalid arguments for cons")
+	}
+	name := params[0].Value.(string)
+
+	args, ok := node.ListToNodes(params[1])
+	if !ok {
+		return nil, errors.New("invalid arguments for cons")
+	}
+	for _, arg := range args {
+		if node.NotIs(arg, node.NodeSymbol) {
+			return nil, errors.New("invalid arguments for cons")
+		}
+	}
+
+	closure := node.Fun(env, params[1], params[2])
+	global := env.Global()
+	global.setFun(name, closure)
+
+	return closure, nil
 }

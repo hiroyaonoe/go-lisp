@@ -150,6 +150,64 @@ func TestEnv_Eval(t *testing.T) {
 				node.Int(7),
 			),
 		},
+		{
+			name: "defun",
+			env:  NewEnv(nil),
+			node: node.List(
+				node.Symbol("defun"),
+				node.Symbol("aa"),
+				node.List(
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+				node.List(
+					node.Symbol("+"),
+					node.Symbol("x"),
+					node.Symbol("y"),
+				),
+			),
+			want: setNodeFunToEnv(
+				t,
+				"aa",
+				node.Fun(
+					NewEnv(nil),
+					node.List(
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+					node.List(
+						node.Symbol("+"),
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+				),
+			),
+		},
+		{
+			name: "defun",
+			env: setNodeFunToEnv(
+				t,
+				"aa",
+				node.Fun(
+					NewEnv(nil),
+					node.List(
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+					node.List(
+						node.Symbol("+"),
+						node.Symbol("x"),
+						node.Symbol("y"),
+					),
+				),
+			).Value.(*Env),
+			node: node.List(
+				node.Symbol("aa"),
+				node.Int(2),
+				node.Int(3),
+			),
+			want: node.Int(5),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -159,10 +217,18 @@ func TestEnv_Eval(t *testing.T) {
 					t.Errorf("err is mismatch (-want +got):\n%s", diff)
 				}
 			} else {
-				if diff := cmp.Diff(tt.want, got); diff != "" {
+				opt := cmp.AllowUnexported(Env{})
+				if diff := cmp.Diff(tt.want, got, opt); diff != "" {
 					t.Errorf("Node value is mismatch (-want +got):\n%s", diff)
 				}
 			}
 		})
 	}
+}
+
+func setNodeFunToEnv(t *testing.T, s string, n *node.Node) *node.Node {
+	t.Helper()
+	env := n.Value.(*Env)
+	env.setFun(s, n)
+	return n
 }

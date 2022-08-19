@@ -13,9 +13,13 @@ const (
 	NodeNil
 	NodeT
 	NodeSymbol
+	NodeFun
 )
 
-// NodeConsならValueはnil, それ以外ならCar, Cdrはnil
+type Env interface {
+	Eval(*Node) (*Node, error)
+}
+
 type Node struct {
 	Type  nodeType
 	Value any
@@ -35,10 +39,14 @@ func (n *Node) String() string {
 		}
 		return fmt.Sprintf("(%v)", strings.Join(ret, " "))
 	}
-	if Is(n, NodeCons) {
+	switch n.Type {
+	case NodeCons:
 		return fmt.Sprintf("(%v . %v)", n.Car, n.Cdr)
+	case NodeFun:
+		return fmt.Sprintf("<fun %v %v>", n.Car, n.Cdr)
+	default:
+		return fmt.Sprintf("%v", n.Value)
 	}
-	return fmt.Sprintf("%v", n.Value)
 }
 
 func ListToNodes(n *Node) ([]*Node, bool) {
@@ -92,6 +100,15 @@ func Symbol(v string) *Node {
 	return &Node{
 		Type:  NodeSymbol,
 		Value: v,
+	}
+}
+
+func Fun(env Env, args *Node, f *Node) *Node {
+	return &Node{
+		Type:  NodeFun,
+		Value: env,
+		Car:   args,
+		Cdr:   f,
 	}
 }
 
